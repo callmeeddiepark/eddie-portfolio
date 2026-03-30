@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDDIE — Art Director</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════ */
+:root {
+  --bg: #0A0A0A;
+  --fg: #FFFFFF;
+  --fg-dim: #888888;
+  --accent: #FF3300;
+  --accent-glow: rgba(255, 51, 0, 0.3);
+  --surface: #111111;
+  --surface-2: #1A1A1A;
+  --border: #222222;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+[data-theme="light"] {
+  --bg: #F5F5F0;
+  --fg: #1A1A1A;
+  --fg-dim: #777777;
+  --surface: #E8E8E3;
+  --surface-2: #DDDDD8;
+  --border: #CCCCCC;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  cursor: none;
+  transition: background var(--transition), color var(--transition);
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: none; }
+img { display: block; max-width: 100%; }
+
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR
+   ═══════════════════════════════════════ */
+.cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  transition: transform 0.1s;
+}
+
+.cursor-ring {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  transition: transform 0.15s, width 0.3s, height 0.3s, border-color 0.3s;
+}
+
+.cursor-ring.hovering {
+  width: 60px;
+  height: 60px;
+  border-color: var(--fg);
+}
+
+/* Image trail */
+.trail-image {
+  position: fixed;
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 4px;
+  opacity: 0;
+  transition: none;
+  will-change: transform, opacity;
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  mix-blend-mode: difference;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 4px;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width var(--transition);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid #fff;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 6px 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all var(--transition);
+  mix-blend-mode: difference;
+}
+
+.theme-toggle:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* ═══════════════════════════════════════
+   SECTION BASE
+   ═══════════════════════════════════════ */
+section {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+/* ═══════════════════════════════════════
+   INTRO SECTION
+   ═══════════════════════════════════════ */
+#intro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+#intro canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.intro-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+
+.intro-name {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 15vw, 200px);
+  letter-spacing: 20px;
+  line-height: 0.9;
+  color: var(--fg);
+  position: relative;
+}
+
+.intro-name .glitch-char {
+  display: inline-block;
+  animation: glitchFloat 4s ease-in-out infinite;
+}
+
+.intro-title {
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 2vw, 20px);
+  letter-spacing: 8px;
+  color: var(--accent);
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.intro-subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--fg-dim);
+  margin-top: 24px;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.scroll-indicator span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.3; transform: scaleY(0.5); }
+}
+
+@keyframes glitchFloat {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-2px); }
+  75% { transform: translateY(2px); }
+}
+
+/* ═══════════════════════════════════════
+   ABOUT SECTION
+   ═══════════════════════════════════════ */
+#about {
+  padding: 120px 40px 80px;
+}
+
+.about-header {
+  margin-bottom: 60px;
+}
+
+.about-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  letter-spacing: 8px;
+}
+
+.about-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+.about-tab {
+  background: none;
+  border: none;
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  position: relative;
+  transition: color var(--transition);
+}
+
+.about-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform var(--transition);
+}
+
+.about-tab.active {
+  color: var(--accent);
+}
+
+.about-tab.active::after {
+  transform: scaleX(1);
+}
+
+.about-tab:hover {
+  color: var(--fg);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeSlideIn 0.5s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Resume Tab */
+.resume-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0;
+  max-width: 900px;
+}
+
+.resume-item {
+  display: contents;
+}
+
+.resume-year {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.resume-detail {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.resume-detail h3 {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.resume-detail p {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.6;
+}
+
+/* DJing Tab - CDJ-3000 */
+.dj-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.dj-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.dj-photo {
+  aspect-ratio: 1;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dj-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(30%);
+  transition: filter var(--transition);
+}
+
+.dj-photo:hover img {
+  filter: grayscale(0%);
+}
+
+/* CDJ-3000 Player */
+.cdj-player {
+  background: #000000;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.cdj-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #222;
+  background: #0a0a0a;
+}
+
+.cdj-brand {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.cdj-model {
+  font-size: 9px;
+  color: #FF5500;
+  letter-spacing: 2px;
+}
+
+.cdj-display {
+  padding: 16px;
+}
+
+.cdj-track-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.cdj-artwork {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #FF3300, #FF6600);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.cdj-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.cdj-track-name {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdj-artist {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.cdj-bpm-key {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.cdj-bpm, .cdj-key {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.cdj-bpm span, .cdj-key span {
+  color: #FF5500;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.cdj-bpm label, .cdj-key label {
+  color: #555;
+  font-size: 9px;
+  display: block;
+}
+
+/* Waveform */
+.cdj-waveform {
+  height: 60px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #1a1a1a;
+}
+
+.cdj-waveform canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.cdj-playhead {
+  position: absolute;
+  top: 0;
+  left: 35%;
+  width: 2px;
+  height: 100%;
+  background: #FF3300;
+  box-shadow: 0 0 8px rgba(255,51,0,0.5);
+  z-index: 2;
+}
+
+.cdj-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.cdj-time .remaining {
+  color: #FF3300;
+}
+
+/* Track Browser */
+.cdj-browser {
+  border-top: 1px solid #222;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 #000;
+}
+
+.cdj-browser-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 60px 60px;
+  padding: 8px 16px;
+  font-size: 9px;
+  color: #555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1a1a1a;
+  position: sticky;
+  top: 0;
+  background: #000;
+}
+
+.cdj-track-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 60px 60px;
+  padding: 10px 16px;
+  font-size: 11px;
+  color: #aaa;
+  border-bottom: 1px solid #0d0d0d;
+  cursor: none;
+  transition: all 0.15s;
+}
+
+.cdj-track-row:hover {
+  background: #111;
+  color: #fff;
+}
+
+.cdj-track-row.active {
+  background: #1a0800;
+  color: #FF5500;
+}
+
+.cdj-track-row .bpm { color: #FF5500; }
+.cdj-track-row .key { color: #888; }
+
+.cdj-controls {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px;
+  border-top: 1px solid #222;
+}
+
+.cdj-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.cdj-btn:hover {
+  border-color: #FF5500;
+  box-shadow: 0 0 12px rgba(255,85,0,0.3);
+}
+
+.cdj-btn.playing {
+  background: #FF3300;
+  border-color: #FF3300;
+}
+
+/* Tattoo Tab */
+.tattoo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tattoo-item {
+  aspect-ratio: 1;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tattoo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.tattoo-item:hover img {
+  transform: scale(1.08);
+}
+
+.tattoo-item .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+.tattoo-item:hover .overlay {
+  opacity: 1;
+}
+
+.tattoo-item .overlay span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+/* ═══════════════════════════════════════
+   PORTFOLIO SECTION
+   ═══════════════════════════════════════ */
+#portfolio {
+  padding: 120px 40px 80px;
+}
+
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+}
+
+.portfolio-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  letter-spacing: 8px;
+}
+
+.portfolio-filters {
+  display: flex;
+  gap: 4px;
+}
+
+.filter-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  transition: all var(--transition);
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.portfolio-card {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--surface);
+  border-radius: 4px;
+}
+
+.portfolio-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.portfolio-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Glitch hover effect */
+.portfolio-card::before,
+.portfolio-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 2;
+}
+
+.portfolio-card::before {
+  background: rgba(255, 51, 0, 0.15);
+  mix-blend-mode: multiply;
+}
+
+.portfolio-card:hover::before {
+  opacity: 1;
+  animation: glitchOverlay 0.3s steps(3) forwards;
+}
+
+@keyframes glitchOverlay {
+  0% { clip-path: inset(0 0 80% 0); opacity: 1; }
+  33% { clip-path: inset(40% 0 20% 0); }
+  66% { clip-path: inset(10% 0 60% 0); }
+  100% { clip-path: inset(0); opacity: 0.7; }
+}
+
+.portfolio-card .card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 3;
+}
+
+.portfolio-card:hover .card-info {
+  transform: translateY(0);
+}
+
+.card-info h3 {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.card-info .card-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Chromatic aberration */
+.portfolio-card:hover .chromatic {
+  animation: chromaticShift 0.4s ease;
+}
+
+@keyframes chromaticShift {
+  0% { text-shadow: none; }
+  25% { text-shadow: -3px 0 #ff0000, 3px 0 #00ffff; }
+  50% { text-shadow: 3px 0 #ff0000, -3px 0 #00ffff; }
+  75% { text-shadow: -1px 0 #ff0000, 1px 0 #00ffff; }
+  100% { text-shadow: none; }
+}
+
+/* ═══════════════════════════════════════
+   VIBE SECTION
+   ═══════════════════════════════════════ */
+#vibe {
+  padding: 120px 40px 80px;
+  background: var(--bg);
+}
+
+.vibe-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  letter-spacing: 8px;
+  margin-bottom: 60px;
+}
+
+.vibe-list {
+  max-width: 1000px;
+}
+
+.vibe-category {
+  margin-bottom: 40px;
+}
+
+.vibe-category-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.vibe-category-title .count {
+  color: var(--accent);
+}
+
+.vibe-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  cursor: none;
+  transition: all 0.2s;
+}
+
+.vibe-item:hover {
+  padding-left: 16px;
+}
+
+.vibe-item-name {
+  font-family: var(--font-body);
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 700;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.vibe-item:hover .vibe-item-name {
+  color: var(--accent);
+  text-shadow: -2px 0 #ff0000, 2px 0 #00ffff;
+}
+
+.vibe-item-type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+}
+
+/* Hover preview */
+.vibe-preview {
+  position: fixed;
+  width: 280px;
+  height: 180px;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.vibe-preview.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.vibe-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ═══════════════════════════════════════
+   CONTACT SECTION
+   ═══════════════════════════════════════ */
+#contact {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 120px 40px;
+}
+
+#contact canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.contact-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 600px;
+}
+
+.contact-content h2 {
+  font-family: var(--font-display);
+  font-size: clamp(60px, 10vw, 120px);
+  letter-spacing: 8px;
+  margin-bottom: 24px;
+}
+
+.contact-content p {
+  font-size: 16px;
+  color: var(--fg-dim);
+  line-height: 1.8;
+  margin-bottom: 48px;
+}
+
+.contact-links {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.contact-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transition: left 0.3s;
+  z-index: -1;
+}
+
+.contact-link:hover {
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.contact-link:hover::before {
+  left: 0;
+}
+
+/* Glitch button */
+.contact-link:hover {
+  animation: contactGlitch 0.3s steps(2);
+}
+
+@keyframes contactGlitch {
+  0% { transform: translate(0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+/* ═══════════════════════════════════════
+   PAGE TRANSITION OVERLAY
+   ═══════════════════════════════════════ */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.transition-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: var(--accent);
+}
+
+/* ═══════════════════════════════════════
+   NOISE OVERLAY
+   ═══════════════════════════════════════ */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+}
+
+/* ═══════════════════════════════════════
+   MOBILE
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+
+  .mobile-menu-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: none;
+    padding: 4px;
+  }
+
+  .mobile-menu-btn span {
+    width: 24px;
+    height: 1.5px;
+    background: #fff;
+    transition: all 0.3s;
+  }
+
+  section { padding: 80px 20px !important; }
+
+  .dj-section { grid-template-columns: 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr 1fr; }
+  .tattoo-grid { grid-template-columns: 1fr 1fr; }
+  .resume-grid { grid-template-columns: 1fr; }
+  .resume-year { padding-bottom: 0; border-top: 1px solid var(--border); }
+
+  .portfolio-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .portfolio-filters { flex-wrap: wrap; }
+
+  .cursor-dot, .cursor-ring, .trail-image { display: none !important; }
+  body { cursor: auto; }
+  button, a { cursor: pointer; }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Noise overlay -->
+<div class="noise-overlay"></div>
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Vibe preview popup -->
+<div class="vibe-preview" id="vibePreview">
+  <img src="" alt="" id="vibePreviewImg">
+</div>
+
+<!-- Page transition -->
+<div class="page-transition" id="pageTransition"></div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#intro" class="nav-logo">E.</a>
+  <ul class="nav-links">
+    <li><a href="#about" data-scramble>About</a></li>
+    <li><a href="#portfolio" data-scramble>Portfolio</a></li>
+    <li><a href="#vibe" data-scramble>Vibe</a></li>
+    <li><a href="#contact" data-scramble>Contact</a></li>
+  </ul>
+  <button class="theme-toggle" id="themeToggle">Light</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     INTRO
+     ═══════════════════════════════════════ -->
+<section id="intro">
+  <canvas id="introCanvas"></canvas>
+  <div class="intro-content">
+    <h1 class="intro-name" id="introName"></h1>
+    <div class="intro-title" id="introTitle"></div>
+    <div class="intro-subtitle">CREATIVE DIRECTION / VISUAL IDENTITY / BRAND EXPERIENCE</div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     ABOUT
+     ═══════════════════════════════════════ -->
+<section id="about">
+  <div class="about-header">
+    <div class="section-label">001 / About</div>
+    <h2>ABOUT</h2>
+  </div>
+
+  <div class="about-tabs">
+    <button class="about-tab active" data-tab="resume">Resume</button>
+    <button class="about-tab" data-tab="djing">DJing</button>
+    <button class="about-tab" data-tab="tattoo">Tattoo</button>
+  </div>
+
+  <!-- Resume -->
+  <div class="tab-content active" id="tab-resume">
+    <div class="resume-grid">
+      <div class="resume-item">
+        <div class="resume-year">2024 — Present</div>
+        <div class="resume-detail">
+          <h3>Senior Art Director</h3>
+          <p>Leading creative campaigns for global brands. Visual identity systems, brand strategy, and cross-platform creative direction.</p>
+        </div>
+      </div>
+      <div class="resume-item">
+        <div class="resume-year">2021 — 2024</div>
+        <div class="resume-detail">
+          <h3>Art Director</h3>
+          <p>Campaign development, motion design direction, and digital-first brand experiences for tech and lifestyle clients.</p>
+        </div>
+      </div>
+      <div class="resume-item">
+        <div class="resume-year">2019 — 2021</div>
+        <div class="resume-detail">
+          <h3>Junior Art Director</h3>
+          <p>Print and digital advertising, social media campaigns, brand guideline development and production design.</p>
+        </div>
+      </div>
+      <div class="resume-item">
+        <div class="resume-year">2018 — 2019</div>
+        <div class="resume-detail">
+          <h3>Graphic Designer</h3>
+          <p>Visual design for editorial, packaging, and environmental graphics. Typography-driven layouts and illustration.</p>
+        </div>
+      </div>
+      <div class="resume-item">
+        <div class="resume-year">2014 — 2018</div>
+        <div class="resume-detail">
+          <h3>BFA Visual Communication Design</h3>
+          <p>Focus on typography, branding, and interactive media. Graduated with honors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DJing -->
+  <div class="tab-content" id="tab-djing">
+    <div class="dj-section">
+      <div class="dj-photos">
+        <div class="dj-photo"><img src="https://picsum.photos/seed/dj1/400/400" alt="DJ"></div>
+        <div class="dj-photo"><img src="https://picsum.photos/seed/dj2/400/400" alt="DJ"></div>
+        <div class="dj-photo"><img src="https://picsum.photos/seed/dj3/400/400" alt="DJ"></div>
+        <div class="dj-photo"><img src="https://picsum.photos/seed/dj4/400/400" alt="DJ"></div>
+      </div>
+
+      <div class="cdj-player">
+        <div class="cdj-header">
+          <span class="cdj-brand">Pioneer DJ</span>
+          <span class="cdj-model">CDJ-3000</span>
+        </div>
+        <div class="cdj-display">
+          <div class="cdj-track-info">
+            <div class="cdj-artwork">&#9835;</div>
+            <div class="cdj-meta">
+              <div class="cdj-track-name" id="cdjTrackName">Midnight Drive</div>
+              <div class="cdj-artist" id="cdjArtist">Eddie</div>
+              <div class="cdj-bpm-key">
+                <div class="cdj-bpm"><label>BPM</label><span id="cdjBpm">128.00</span></div>
+                <div class="cdj-key"><label>KEY</label><span id="cdjKey">Am</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="cdj-waveform">
+            <canvas id="waveformCanvas"></canvas>
+            <div class="cdj-playhead"></div>
+          </div>
+          <div class="cdj-time">
+            <span id="cdjElapsed">00:00</span>
+            <span class="remaining" id="cdjRemaining">-04:32</span>
+          </div>
+        </div>
+        <div class="cdj-controls">
+          <button class="cdj-btn" title="Previous">&#9198;</button>
+          <button class="cdj-btn playing" id="cdjPlayBtn" title="Play/Pause">&#9654;</button>
+          <button class="cdj-btn" title="Next">&#9197;</button>
+        </div>
+        <div class="cdj-browser">
+          <div class="cdj-browser-header">
+            <span>Track</span>
+            <span>Artist</span>
+            <span>BPM</span>
+            <span>Key</span>
+          </div>
+          <div class="cdj-track-row active" data-track="Midnight Drive" data-artist="Eddie" data-bpm="128.00" data-key="Am">
+            <span>Midnight Drive</span><span>Eddie</span><span class="bpm">128.00</span><span class="key">Am</span>
+          </div>
+          <div class="cdj-track-row" data-track="Neon Seoul" data-artist="Eddie" data-bpm="124.00" data-key="Cm">
+            <span>Neon Seoul</span><span>Eddie</span><span class="bpm">124.00</span><span class="key">Cm</span>
+          </div>
+          <div class="cdj-track-row" data-track="4AM in Gangnam" data-artist="Eddie" data-bpm="130.00" data-key="Fm">
+            <span>4AM in Gangnam</span><span>Eddie</span><span class="bpm">130.00</span><span class="key">Fm</span>
+          </div>
+          <div class="cdj-track-row" data-track="Concrete Waves" data-artist="Eddie" data-bpm="126.00" data-key="Dm">
+            <span>Concrete Waves</span><span>Eddie</span><span class="bpm">126.00</span><span class="key">Dm</span>
+          </div>
+          <div class="cdj-track-row" data-track="Analog Dreams" data-artist="Eddie" data-bpm="122.00" data-key="Gm">
+            <span>Analog Dreams</span><span>Eddie</span><span class="bpm">122.00</span><span class="key">Gm</span>
+          </div>
+          <div class="cdj-track-row" data-track="Dawn Patrol" data-artist="Eddie ft. YUNA" data-bpm="135.00" data-key="Bbm">
+            <span>Dawn Patrol</span><span>Eddie ft. YUNA</span><span class="bpm">135.00</span><span class="key">Bbm</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tattoo -->
+  <div class="tab-content" id="tab-tattoo">
+    <div class="tattoo-grid">
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat1/400/400" alt="Tattoo">
+        <div class="overlay"><span>DESIGN — 001</span></div>
+      </div>
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat2/400/400" alt="Tattoo">
+        <div class="overlay"><span>DESIGN — 002</span></div>
+      </div>
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat3/400/400" alt="Tattoo">
+        <div class="overlay"><span>WORK — 001</span></div>
+      </div>
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat4/400/400" alt="Tattoo">
+        <div class="overlay"><span>WORK — 002</span></div>
+      </div>
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat5/400/400" alt="Tattoo">
+        <div class="overlay"><span>DESIGN — 003</span></div>
+      </div>
+      <div class="tattoo-item">
+        <img src="https://picsum.photos/seed/tat6/400/400" alt="Tattoo">
+        <div class="overlay"><span>WORK — 003</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     PORTFOLIO
+     ═══════════════════════════════════════ -->
+<section id="portfolio">
+  <div class="portfolio-header">
+    <div>
+      <div class="section-label">002 / Portfolio</div>
+      <h2>WORK</h2>
+    </div>
+    <div class="portfolio-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="branding">Branding</button>
+      <button class="filter-btn" data-filter="campaign">Campaign</button>
+      <button class="filter-btn" data-filter="digital">Digital</button>
+      <button class="filter-btn" data-filter="video">Video</button>
+    </div>
+  </div>
+  <div class="portfolio-grid" id="portfolioGrid">
+    <div class="portfolio-card" data-category="branding">
+      <img src="https://picsum.photos/seed/p1/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">HYUNDAI Rebrand</h3><div class="card-tag">Branding</div></div>
+    </div>
+    <div class="portfolio-card" data-category="campaign">
+      <img src="https://picsum.photos/seed/p2/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Nike Air Seoul</h3><div class="card-tag">Campaign</div></div>
+    </div>
+    <div class="portfolio-card" data-category="digital">
+      <img src="https://picsum.photos/seed/p3/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Samsung Galaxy UX</h3><div class="card-tag">Digital</div></div>
+    </div>
+    <div class="portfolio-card" data-category="video">
+      <img src="https://picsum.photos/seed/p4/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Amorepacific Film</h3><div class="card-tag">Video</div></div>
+    </div>
+    <div class="portfolio-card" data-category="branding">
+      <img src="https://picsum.photos/seed/p5/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Gentle Monster Identity</h3><div class="card-tag">Branding</div></div>
+    </div>
+    <div class="portfolio-card" data-category="campaign">
+      <img src="https://picsum.photos/seed/p6/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Kakao Pay Launch</h3><div class="card-tag">Campaign</div></div>
+    </div>
+    <div class="portfolio-card" data-category="digital">
+      <img src="https://picsum.photos/seed/p7/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Coupang Eats App</h3><div class="card-tag">Digital</div></div>
+    </div>
+    <div class="portfolio-card" data-category="video">
+      <img src="https://picsum.photos/seed/p8/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Lotte Cinema Spot</h3><div class="card-tag">Video</div></div>
+    </div>
+    <div class="portfolio-card" data-category="branding">
+      <img src="https://picsum.photos/seed/p9/600/450" alt="Project">
+      <div class="card-info"><h3 class="chromatic">Musinsa Rebrand</h3><div class="card-tag">Branding</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     VIBE
+     ═══════════════════════════════════════ -->
+<section id="vibe">
+  <div class="vibe-header">
+    <div class="section-label">003 / Vibe</div>
+    <h2>VIBE</h2>
+  </div>
+  <div class="vibe-list">
+    <div class="vibe-category">
+      <div class="vibe-category-title"><span>SIDE PROJECTS</span><span class="count">004</span></div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v1/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Generative Poster Series</span>
+        <span class="vibe-item-type">Web / Print</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v2/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Audio Reactive Visuals</span>
+        <span class="vibe-item-type">Installation</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v3/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Typography Experiments</span>
+        <span class="vibe-item-type">Web</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v4/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Brutalist Zine Vol.3</span>
+        <span class="vibe-item-type">Print</span>
+      </div>
+    </div>
+    <div class="vibe-category">
+      <div class="vibe-category-title"><span>EXPERIMENTS</span><span class="count">003</span></div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v5/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Shader Playground</span>
+        <span class="vibe-item-type">WebGL</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v6/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Particle Physics Sim</span>
+        <span class="vibe-item-type">Canvas</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v7/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Glitch Text Engine</span>
+        <span class="vibe-item-type">JS Library</span>
+      </div>
+    </div>
+    <div class="vibe-category">
+      <div class="vibe-category-title"><span>INSPIRATION</span><span class="count">003</span></div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v8/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Tokyo Street Archive</span>
+        <span class="vibe-item-type">Photography</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v9/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Vinyl Collection Log</span>
+        <span class="vibe-item-type">Website</span>
+      </div>
+      <div class="vibe-item" data-preview="https://picsum.photos/seed/v10/400/260">
+        <span class="vibe-item-name" data-scramble-hover>Neon Sign Studies</span>
+        <span class="vibe-item-type">Photography</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     CONTACT
+     ═══════════════════════════════════════ -->
+<section id="contact">
+  <canvas id="contactCanvas"></canvas>
+  <div class="contact-content">
+    <div class="section-label">004 / Contact</div>
+    <h2>LET'S TALK</h2>
+    <p>Always open to new creative challenges,<br>collaborations, and interesting conversations.</p>
+    <div class="contact-links">
+      <a href="mailto:hello@eddie.kr" class="contact-link">Email</a>
+      <a href="#" class="contact-link">Instagram</a>
+      <a href="#" class="contact-link">Behance</a>
+      <a href="#" class="contact-link">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ═══════════════════════════════════════
+   TEXT SCRAMBLE ENGINE
+   ═══════════════════════════════════════ */
+class TextScramble {
+  constructor(el) {
+    this.el = el;
+    this.chars = '!<>-_\\/[]{}—=+*^?#________';
+    this.frame = 0;
+    this.queue = [];
+    this.resolve = null;
+  }
+
+  setText(newText) {
+    const oldText = this.el.innerText;
+    const length = Math.max(oldText.length, newText.length);
+    this.queue = [];
+    for (let i = 0; i < length; i++) {
+      const from = oldText[i] || '';
+      const to = newText[i] || '';
+      const start = Math.floor(Math.random() * 40);
+      const end = start + Math.floor(Math.random() * 40);
+      this.queue.push({ from, to, start, end });
+    }
+    cancelAnimationFrame(this.frameRequest);
+    this.frame = 0;
+    return new Promise(resolve => {
+      this.resolve = resolve;
+      this.update();
+    });
+  }
+
+  update() {
+    let output = '';
+    let complete = 0;
+    for (let i = 0; i < this.queue.length; i++) {
+      let { from, to, start, end, char } = this.queue[i];
+      if (this.frame >= end) {
+        complete++;
+        output += to;
+      } else if (this.frame >= start) {
+        if (!char || Math.random() < 0.28) {
+          char = this.chars[Math.floor(Math.random() * this.chars.length)];
+          this.queue[i].char = char;
+        }
+        output += `<span style="color:var(--fg-dim)">${char}</span>`;
+      } else {
+        output += from;
+      }
+    }
+    this.el.innerHTML = output;
+    if (complete === this.queue.length) {
+      if (this.resolve) this.resolve();
+    } else {
+      this.frameRequest = requestAnimationFrame(() => this.update());
+      this.frame++;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════
+   INTRO — PARTICLE FLOW FIELD
+   ═══════════════════════════════════════ */
+(function initIntro() {
+  const canvas = document.getElementById('introCanvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles, cols, rows;
+  const noiseScale = 0.005;
+  const particleCount = window.innerWidth < 768 ? 800 : 2500;
+  let mouseX = -1000, mouseY = -1000;
+  let time = 0;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w * noiseScale);
+    rows = Math.floor(h * noiseScale);
+  }
+
+  // Simple noise
+  function noise(x, y, t) {
+    return Math.sin(x * 1.2 + t) * Math.cos(y * 0.8 + t * 0.7) +
+           Math.sin(x * 0.5 + y * 0.9 + t * 0.3) * 0.5;
+  }
+
+  function createParticles() {
+    particles = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: 0, vy: 0,
+        life: Math.random() * 200 + 50,
+        maxLife: 250,
+        size: Math.random() * 1.5 + 0.5
+      });
+    }
+  }
+
+  function animate() {
+    const isDark = document.documentElement.dataset.theme !== 'light';
+    ctx.fillStyle = isDark ? 'rgba(10,10,10,0.08)' : 'rgba(245,245,240,0.08)';
+    ctx.fillRect(0, 0, w, h);
+
+    time += 0.003;
+
+    particles.forEach(p => {
+      const n = noise(p.x * noiseScale, p.y * noiseScale, time);
+      const angle = n * Math.PI * 4;
+
+      // Mouse repulsion
+      const dx = p.x - mouseX;
+      const dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const force = Math.max(0, 150 - dist) / 150;
+
+      p.vx += Math.cos(angle) * 0.3 + (dx / dist) * force * 2;
+      p.vy += Math.sin(angle) * 0.3 + (dy / dist) * force * 2;
+      p.vx *= 0.95;
+      p.vy *= 0.95;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+
+      if (p.life <= 0 || p.x < 0 || p.x > w || p.y < 0 || p.y > h) {
+        p.x = Math.random() * w;
+        p.y = Math.random() * h;
+        p.vx = 0;
+        p.vy = 0;
+        p.life = p.maxLife;
+      }
+
+      const alpha = Math.min(1, p.life / 50) * 0.6;
+      const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+
+      if (speed > 1.5) {
+        ctx.fillStyle = `rgba(255, 51, 0, ${alpha})`;
+      } else {
+        ctx.fillStyle = isDark
+          ? `rgba(255, 255, 255, ${alpha * 0.5})`
+          : `rgba(30, 30, 30, ${alpha * 0.5})`;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => { resize(); createParticles(); });
+  canvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+  canvas.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+  resize();
+  createParticles();
+  animate();
+
+  // Scramble intro text
+  const nameEl = document.getElementById('introName');
+  const titleEl = document.getElementById('introTitle');
+  nameEl.textContent = '';
+  titleEl.textContent = '';
+  const nameScramble = new TextScramble(nameEl);
+  const titleScramble = new TextScramble(titleEl);
+
+  setTimeout(() => nameScramble.setText('EDDIE'), 500);
+  setTimeout(() => titleScramble.setText('ART DIRECTOR'), 1200);
+})();
+
+/* ═══════════════════════════════════════
+   CONTACT — GEOMETRIC GENERATIVE BG
+   ═══════════════════════════════════════ */
+(function initContact() {
+  const canvas = document.getElementById('contactCanvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, time = 0;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+
+  function animate() {
+    const isDark = document.documentElement.dataset.theme !== 'light';
+    ctx.fillStyle = isDark ? 'rgba(10,10,10,0.05)' : 'rgba(245,245,240,0.05)';
+    ctx.fillRect(0, 0, w, h);
+
+    time += 0.01;
+    const lineColor = isDark ? 'rgba(255,51,0,0.08)' : 'rgba(255,51,0,0.06)';
+
+    for (let i = 0; i < 12; i++) {
+      const x1 = w * 0.5 + Math.cos(time + i * 0.5) * w * 0.4;
+      const y1 = h * 0.5 + Math.sin(time * 0.7 + i * 0.3) * h * 0.4;
+      const x2 = w * 0.5 + Math.cos(time * 0.5 + i * 0.8) * w * 0.3;
+      const y2 = h * 0.5 + Math.sin(time * 0.3 + i * 0.6) * h * 0.3;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(x1, y1, 2, 0, Math.PI * 2);
+      ctx.fillStyle = lineColor;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  animate();
+})();
+
+/* ═══════════════════════════════════════
+   CDJ WAVEFORM
+   ═══════════════════════════════════════ */
+(function initWaveform() {
+  const canvas = document.getElementById('waveformCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let time = 0;
+
+  function draw() {
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Generate fake waveform
+    for (let x = 0; x < w; x += 2) {
+      const progress = x / w;
+      // Multi-frequency mix for realistic waveform
+      const bass = Math.sin(progress * 80 + time) * 0.5;
+      const mid = Math.sin(progress * 200 + time * 1.5) * 0.3;
+      const high = Math.sin(progress * 500 + time * 2) * 0.15;
+
+      const amplitude = (bass + mid + high) * (0.5 + Math.random() * 0.5);
+      const barH = Math.abs(amplitude) * h * 0.8;
+
+      // Color based on frequency content
+      let color;
+      if (Math.abs(bass) > 0.3) color = '#2266FF'; // bass = blue
+      else if (Math.abs(mid) > 0.2) color = '#22CC66'; // mid = green
+      else color = '#FF8800'; // high = orange
+
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.8;
+      ctx.fillRect(x, (h - barH) / 2, 1.5, barH);
+    }
+
+    ctx.globalAlpha = 1;
+    time += 0.02;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+
+/* ═══════════════════════════════════════
+   CDJ TRACK SELECTION
+   ═══════════════════════════════════════ */
+document.querySelectorAll('.cdj-track-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('.cdj-track-row').forEach(r => r.classList.remove('active'));
+    row.classList.add('active');
+    document.getElementById('cdjTrackName').textContent = row.dataset.track;
+    document.getElementById('cdjArtist').textContent = row.dataset.artist;
+    document.getElementById('cdjBpm').textContent = row.dataset.bpm;
+    document.getElementById('cdjKey').textContent = row.dataset.key;
+  });
+});
+
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR + IMAGE TRAIL
+   ═══════════════════════════════════════ */
+(function initCursor() {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let cx = 0, cy = 0, rx = 0, ry = 0;
+
+  // Image trail
+  const trailImages = [];
+  const MAX_TRAIL = 6;
+  let lastTrailTime = 0;
+  const TRAIL_INTERVAL = 100;
+
+  // Section-specific placeholder images
+  const sectionImages = {
+    intro: Array.from({length: 8}, (_, i) => `https://picsum.photos/seed/intro${i}/240/160`),
+    about: Array.from({length: 8}, (_, i) => `https://picsum.photos/seed/about${i}/240/160`),
+    portfolio: Array.from({length: 8}, (_, i) => `https://picsum.photos/seed/port${i}/240/160`),
+    vibe: Array.from({length: 8}, (_, i) => `https://picsum.photos/seed/vibe${i}/240/160`),
+    contact: Array.from({length: 8}, (_, i) => `https://picsum.photos/seed/contact${i}/240/160`)
+  };
+
+  function getCurrentSection() {
+    const sections = ['intro', 'about', 'portfolio', 'vibe', 'contact'];
+    const scrollY = window.scrollY + window.innerHeight / 2;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      const el = document.getElementById(sections[i]);
+      if (el && el.offsetTop <= scrollY) return sections[i];
+    }
+    return 'intro';
+  }
+
+  function createTrailImage(x, y) {
+    const section = getCurrentSection();
+    const images = sectionImages[section];
+    const src = images[Math.floor(Math.random() * images.length)];
+
+    const img = document.createElement('img');
+    img.className = 'trail-image';
+    img.src = src;
+    const rotation = (Math.random() - 0.5) * 20;
+    img.style.left = (x - 60) + 'px';
+    img.style.top = (y - 40) + 'px';
+    img.style.transform = `rotate(${rotation}deg) scale(1)`;
+    img.style.opacity = '0.8';
+    document.body.appendChild(img);
+
+    trailImages.push({ el: img, birth: Date.now() });
+
+    // Fade out
+    setTimeout(() => {
+      img.style.transition = 'opacity 0.6s, transform 0.6s';
+      img.style.opacity = '0';
+      img.style.transform = `rotate(${rotation}deg) scale(0.7)`;
+    }, 50);
+
+    setTimeout(() => {
+      img.remove();
+      const idx = trailImages.findIndex(t => t.el === img);
+      if (idx > -1) trailImages.splice(idx, 1);
+    }, 700);
+  }
+
+  document.addEventListener('mousemove', e => {
+    cx = e.clientX;
+    cy = e.clientY;
+
+    const now = Date.now();
+    if (now - lastTrailTime > TRAIL_INTERVAL) {
+      if (trailImages.length < MAX_TRAIL) {
+        createTrailImage(cx, cy);
+      }
+      lastTrailTime = now;
+    }
+  });
+
+  // Hover state
+  const hoverables = 'a, button, .portfolio-card, .vibe-item, .cdj-track-row, .tattoo-item, .dj-photo';
+  document.querySelectorAll(hoverables).forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+  });
+
+  function animateCursor() {
+    rx += (cx - rx) * 0.15;
+    ry += (cy - ry) * 0.15;
+    dot.style.left = cx - 4 + 'px';
+    dot.style.top = cy - 4 + 'px';
+    ring.style.left = rx - 20 + 'px';
+    ring.style.top = ry - 20 + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+
+  animateCursor();
+})();
+
+/* ═══════════════════════════════════════
+   ABOUT TABS
+   ═══════════════════════════════════════ */
+document.querySelectorAll('.about-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.about-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ═══════════════════════════════════════
+   PORTFOLIO FILTER
+   ═══════════════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('.portfolio-card').forEach(card => {
+      if (filter === 'all' || card.dataset.category === filter) {
+        card.style.display = '';
+        card.style.animation = 'fadeSlideIn 0.4s ease';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+});
+
+/* ═══════════════════════════════════════
+   VIBE HOVER PREVIEW
+   ═══════════════════════════════════════ */
+(function initVibePreview() {
+  const preview = document.getElementById('vibePreview');
+  const previewImg = document.getElementById('vibePreviewImg');
+
+  document.querySelectorAll('.vibe-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+      previewImg.src = item.dataset.preview;
+      preview.classList.add('visible');
+    });
+
+    item.addEventListener('mousemove', e => {
+      preview.style.left = e.clientX + 20 + 'px';
+      preview.style.top = e.clientY - 90 + 'px';
+    });
+
+    item.addEventListener('mouseleave', () => {
+      preview.classList.remove('visible');
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════
+   VIBE TEXT SCRAMBLE ON HOVER
+   ═══════════════════════════════════════ */
+document.querySelectorAll('[data-scramble-hover]').forEach(el => {
+  const original = el.textContent;
+  const scrambler = new TextScramble(el);
+  let isScrambling = false;
+
+  el.parentElement.addEventListener('mouseenter', () => {
+    if (!isScrambling) {
+      isScrambling = true;
+      scrambler.setText(original).then(() => { isScrambling = false; });
+    }
+  });
+});
+
+/* ═══════════════════════════════════════
+   THEME TOGGLE
+   ═══════════════════════════════════════ */
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  this.textContent = isDark ? 'Dark' : 'Light';
+});
+
+/* ═══════════════════════════════════════
+   SCROLL: ACTIVE NAV + PARALLAX
+   ═══════════════════════════════════════ */
+(function initScroll() {
+  const sections = document.querySelectorAll('section');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  function onScroll() {
+    const scrollY = window.scrollY;
+
+    // Active nav
+    sections.forEach((section, i) => {
+      const top = section.offsetTop - 200;
+      const bottom = top + section.offsetHeight;
+      if (scrollY >= top && scrollY < bottom) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        if (navLinks[i - 1]) navLinks[i - 1].classList.add('active');
+      }
+    });
+
+    // Parallax intro
+    const introContent = document.querySelector('.intro-content');
+    if (introContent) {
+      introContent.style.transform = `translateY(${scrollY * 0.3}px)`;
+      introContent.style.opacity = 1 - scrollY / (window.innerHeight * 0.8);
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+   ═══════════════════════════════════════ */
+(function initReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.resume-item, .portfolio-card, .vibe-item, .tattoo-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+})();
+
+/* ═══════════════════════════════════════
+   NAV SCRAMBLE
+   ═══════════════════════════════════════ */
+document.querySelectorAll('[data-scramble]').forEach(el => {
+  const original = el.textContent;
+  const scrambler = new TextScramble(el);
+  el.addEventListener('mouseenter', () => scrambler.setText(original));
+});
+
+/* ═══════════════════════════════════════
+   SMOOTH SCROLL
+   ═══════════════════════════════════════ */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
